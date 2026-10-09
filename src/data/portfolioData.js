@@ -17,7 +17,7 @@ export const PERSONAL_INFO = {
 
 export const METRICS = [
   { value: "9.76", label: "Academic CGPI", sub: "VESIT Computer Engg", accent: "gold" },
-  { value: "10+", label: "Hackathon Podiums", sub: "National & Global Honors", accent: "cyan" },
+  { value: "3+", label: "Hackathon Podiums", sub: "National & Global Honors", accent: "cyan" },
   { value: "3+", label: "Industry Internships", sub: "Jio, Reliance, Atyeti", accent: "emerald" },
   { value: "1", label: "Springer Publication", sub: "LNNS / ICT4SD '26", accent: "violet" },
   { value: "22+", label: "Repositories", sub: "Open Source Code", accent: "blue" }

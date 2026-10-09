@@ -29,7 +29,7 @@ export default function Hero({ soundEnabled }) {
             </span>
             <span className="hero-badge" style={{ borderColor: 'rgba(16, 185, 129, 0.4)', color: '#34d399', background: 'rgba(16, 185, 129, 0.1)' }}>
               <Award size={14} />
-              <span>10+ Hackathon Podiums</span>
+              <span>3+ Hackathon Podiums</span>
             </span>
           </div>
 
@@ -77,7 +77,7 @@ export default function Hero({ soundEnabled }) {
         <div className="hero-visual reveal is-visible stagger-2">
           <div className="portrait-frame">
             {/* Floating Badges */}
-            <div className="floating-chip chip-1">
+            {/* <div className="floating-chip chip-1">
               <span>🏆</span>
               <span>GOLC Int'l Winner '26</span>
             </div>
@@ -90,7 +90,7 @@ export default function Hero({ soundEnabled }) {
             <div className="floating-chip chip-3">
               <span>📄</span>
               <span>Springer Nature Author</span>
-            </div>
+            </div> */}
 
             <div className="portrait-image-wrapper">
               <img 

@@ -12,9 +12,11 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import TerminalModal from './components/TerminalModal';
 import ArchitectureModal from './components/ArchitectureModal';
+import EntryLoader from './components/EntryLoader';
 import { useScrollReveal } from './hooks/useScrollReveal';
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [activeArchId, setActiveArchId] = useState(null);
@@ -54,7 +56,15 @@ export default function App() {
   }, []);
 
   return (
-    <div className="portfolio-app">
+    <div className={`portfolio-app ${!loading ? 'page-entered' : ''}`}>
+      {/* High-Tech Cinematic Entry Loader */}
+      {loading && (
+        <EntryLoader 
+          onComplete={() => setLoading(false)}
+          soundEnabled={soundEnabled}
+        />
+      )}
+
       {/* Ambient Cursor Spotlight */}
       <div id="cursor-spotlight" className="cursor-spotlight" aria-hidden="true" />
 
