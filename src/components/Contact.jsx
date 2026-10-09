@@ -170,7 +170,7 @@ export default function Contact({ soundEnabled }) {
                 </div>
                 <div className="direct-details">
                   <span className="direct-label">LINKEDIN</span>
-                  <span className="direct-value">linkedin.com/in/yash-mahajan-540963321 ↗</span>
+                  <span className="direct-value">linkedin.com/in/yash-mahajan ↗</span>
                 </div>
               </a>
 
@@ -186,7 +186,7 @@ export default function Contact({ soundEnabled }) {
                 </div>
                 <div className="direct-details">
                   <span className="direct-label">GITHUB</span>
-                  <span className="direct-value">github.com/Yash-Mahajan-28 (22 Repos) ↗</span>
+                  <span className="direct-value">github.com/Yash-Mahajan-28 ↗</span>
                 </div>
               </a>
             </div>

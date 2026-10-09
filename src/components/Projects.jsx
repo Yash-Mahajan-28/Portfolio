@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { ExternalLink, GitBranch, Layers } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ExternalLink, GitBranch, Layers, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { FEATURED_PROJECTS, SECONDARY_PROJECTS } from '../data/portfolioData';
 import { playWarmTone } from '../utils/audioSynth';
 
 export default function Projects({ onOpenArchitecture, soundEnabled }) {
   const [filter, setFilter] = useState('all');
+  const [showAllSecondary, setShowAllSecondary] = useState(false);
+  const [currentProjectIdx, setCurrentProjectIdx] = useState(0);
+  const carouselRef = useRef(null);
 
   const allProjectsCount = FEATURED_PROJECTS.length + SECONDARY_PROJECTS.length;
 
@@ -25,6 +28,10 @@ export default function Projects({ onOpenArchitecture, soundEnabled }) {
 
   const handleFilterChange = (catId) => {
     setFilter(catId);
+    setCurrentProjectIdx(0);
+    if (carouselRef.current) {
+      carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+    }
     if (soundEnabled) {
       playWarmTone(392.00, 'sine', 0.12);
     }
@@ -38,6 +45,26 @@ export default function Projects({ onOpenArchitecture, soundEnabled }) {
     filter === 'all' || project.category.includes(filter)
   );
 
+  const displayedSecondary = showAllSecondary ? filteredSecondary : filteredSecondary.slice(0, 3);
+
+  const handleScrollCarousel = (direction) => {
+    if (!carouselRef.current) return;
+    const container = carouselRef.current;
+    const cardWidth = container.querySelector('.project-card')?.offsetWidth || 300;
+    const scrollAmount = direction === 'next' ? cardWidth + 14 : -(cardWidth + 14);
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+
+  const handleCarouselScroll = () => {
+    if (!carouselRef.current) return;
+    const container = carouselRef.current;
+    const card = container.querySelector('.project-card');
+    if (!card) return;
+    const cardWidth = card.offsetWidth + 14;
+    const newIdx = Math.round(container.scrollLeft / cardWidth);
+    setCurrentProjectIdx(Math.min(Math.max(newIdx, 0), filteredFeatured.length - 1));
+  };
+
   return (
     <section id="projects" className="section">
       <div className="container">
@@ -49,36 +76,77 @@ export default function Projects({ onOpenArchitecture, soundEnabled }) {
           </p>
         </div>
 
-        {/* Filter Navigation with live counts */}
-        <div className="projects-nav reveal stagger-1" role="tablist">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              className={`filter-btn ${filter === cat.id ? 'active' : ''}`}
-              onClick={() => handleFilterChange(cat.id)}
-              role="tab"
-            >
-              <span>{cat.label}</span>
-              <span 
-                className="font-mono" 
-                style={{ 
-                  fontSize: '0.72rem', 
-                  opacity: 0.8, 
-                  marginLeft: '6px',
-                  background: filter === cat.id ? 'rgba(0, 242, 254, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-                  padding: '2px 7px',
-                  borderRadius: '999px'
-                }}
+        {/* Filter Navigation */}
+        <div className="projects-nav-scroll-wrap">
+          <div className="projects-nav" role="tablist">
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`filter-btn ${filter === cat.id ? 'active' : ''}`}
+                onClick={() => handleFilterChange(cat.id)}
+                role="tab"
               >
-                {cat.count}
-              </span>
+                <span>{cat.label}</span>
+                <span className="filter-count-badge">
+                  {cat.count}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Carousel Bar with Pagination Dots & Arrows */}
+        <div className="mobile-carousel-controls">
+          <div className="carousel-status-text font-mono">
+            <span>Project {Math.min(currentProjectIdx + 1, filteredFeatured.length)} of {filteredFeatured.length}</span>
+          </div>
+
+          <div className="carousel-dots">
+            {filteredFeatured.map((_, i) => (
+              <span 
+                key={i} 
+                className={`carousel-dot ${currentProjectIdx === i ? 'active' : ''}`}
+                onClick={() => {
+                  if (carouselRef.current) {
+                    const card = carouselRef.current.querySelector('.project-card');
+                    if (card) {
+                      carouselRef.current.scrollTo({ left: i * (card.offsetWidth + 14), behavior: 'smooth' });
+                    }
+                  }
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="carousel-nav-arrows">
+            <button 
+              type="button" 
+              className="carousel-arrow-btn" 
+              onClick={() => handleScrollCarousel('prev')}
+              disabled={currentProjectIdx === 0}
+              aria-label="Previous project card"
+            >
+              <ChevronLeft size={16} />
             </button>
-          ))}
+            <button 
+              type="button" 
+              className="carousel-arrow-btn" 
+              onClick={() => handleScrollCarousel('next')}
+              disabled={currentProjectIdx >= filteredFeatured.length - 1}
+              aria-label="Next project card"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Primary Featured Projects */}
-        <div className="projects-grid">
+        <div 
+          className="projects-grid" 
+          ref={carouselRef}
+          onScroll={handleCarouselScroll}
+        >
           {filteredFeatured.map((project) => (
             <article 
               key={project.id} 
@@ -149,33 +217,62 @@ export default function Projects({ onOpenArchitecture, soundEnabled }) {
 
         {/* Secondary Projects Grid */}
         {filteredSecondary.length > 0 && (
-          <div className="more-projects-grid">
-            {filteredSecondary.map((p) => (
-              <article key={p.title} className="mini-project-card">
-                <div className="mini-top">
-                  <span className="font-mono" style={{ fontSize: '0.72rem', color: '#fbbf24' }}>
-                    {p.badge}
-                  </span>
-                  <a 
-                    href={p.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    style={{ color: 'var(--accent-cyan)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <span>{p.linkText}</span>
-                  </a>
-                </div>
+          <div className="secondary-projects-section">
+            <div className="secondary-section-title font-mono" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              // ADDITIONAL IMPLEMENTATIONS & HACKATHON BUILDS
+            </div>
 
-                <h4 className="mini-title">{p.title}</h4>
-                <p className="mini-desc">{p.description}</p>
+            <div className="more-projects-grid">
+              {displayedSecondary.map((p) => (
+                <article key={p.title} className="mini-project-card">
+                  <div className="mini-top">
+                    <span className="font-mono mini-badge">
+                      {p.badge}
+                    </span>
+                    <a 
+                      href={p.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="mini-link"
+                    >
+                      <span>{p.linkText}</span>
+                    </a>
+                  </div>
 
-                <div className="project-tech-stack">
-                  {p.tech.map(t => (
-                    <span key={t} className="tech-tag">{t}</span>
-                  ))}
-                </div>
-              </article>
-            ))}
+                  <h4 className="mini-title">{p.title}</h4>
+                  <p className="mini-desc">{p.description}</p>
+
+                  <div className="project-tech-stack">
+                    {p.tech.map(t => (
+                      <span key={t} className="tech-tag">{t}</span>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {filteredSecondary.length > 3 && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                <button
+                  type="button"
+                  className="btn-pill btn-pill-outline font-mono"
+                  style={{ fontSize: '0.8rem', padding: '8px 18px' }}
+                  onClick={() => setShowAllSecondary(prev => !prev)}
+                >
+                  {showAllSecondary ? (
+                    <>
+                      <span>Show Less</span>
+                      <ChevronUp size={14} />
+                    </>
+                  ) : (
+                    <>
+                      <span>View All Secondary Projects ({filteredSecondary.length})</span>
+                      <ChevronDown size={14} />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

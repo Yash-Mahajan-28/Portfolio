@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { RESEARCH_STUDIES } from '../data/portfolioData';
 
 export default function Research() {
   const primaryPaper = RESEARCH_STUDIES[0];
   const secondaryStudies = RESEARCH_STUDIES.slice(1);
+  const [showSecondaryStudies, setShowSecondaryStudies] = useState(false);
 
   return (
     <section id="research" className="section">
@@ -17,8 +19,8 @@ export default function Research() {
         </div>
 
         <div className="research-container">
-          {/* Main Paper */}
-          <article className="research-card reveal stagger-1">
+          {/* Main Primary Paper */}
+          <article className="research-card primary-research-card reveal stagger-1">
             <div className="research-badge">
               <span>{primaryPaper.badge}</span>
             </div>
@@ -35,10 +37,32 @@ export default function Research() {
             </div>
           </article>
 
+          {/* Mobile Toggle for Secondary Studies */}
+          <div className="mobile-research-toggle">
+            <button
+              type="button"
+              className="btn-pill btn-pill-outline font-mono"
+              style={{ fontSize: '0.78rem', padding: '8px 18px', width: '100%', justifyContent: 'center' }}
+              onClick={() => setShowSecondaryStudies(prev => !prev)}
+            >
+              {showSecondaryStudies ? (
+                <>
+                  <span>Hide Additional Studies</span>
+                  <ChevronUp size={14} />
+                </>
+              ) : (
+                <>
+                  <span>View Additional Research Studies (2)</span>
+                  <ChevronDown size={14} />
+                </>
+              )}
+            </button>
+          </div>
+
           {/* Secondary Studies */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className={`secondary-research-wrap ${showSecondaryStudies ? 'mobile-visible' : ''}`}>
             {secondaryStudies.map((study, idx) => (
-              <article key={study.title} className={`research-card reveal stagger-${idx + 2}`} style={{ padding: '24px' }}>
+              <article key={study.title} className={`research-card secondary-study-card reveal stagger-${idx + 2}`}>
                 <div 
                   className="research-badge" 
                   style={{ 
